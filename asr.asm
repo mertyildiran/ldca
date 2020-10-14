@@ -33,6 +33,7 @@ _start:         mov     al, 5                   ; 5 = open syscall
                 mov     cl, 0
                 mov     al, 4                   ; 4 = write syscall
                 int     0x80
+                mov     bl, 0
                 mov     al, 1                   ; 1 = exit syscall
                 int     0x80
 filesize        equ     $ - $$
