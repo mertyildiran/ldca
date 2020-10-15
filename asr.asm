@@ -11,21 +11,33 @@ BITS 32
                 dd      0                       ; e_flags
                 dw      0x34                    ; e_ehsize
                 dw      0x20                    ; e_phentsize
+
 phdr:           dd      1                       ; e_phnum       ; p_type
                                                 ; e_shentsize
                 dd      0                       ; e_shnum       ; p_offset
                                                 ; e_shstrndx
                 dd      $$                                      ; p_vaddr
+
 fname:          db      'asr', 0                                ; p_paddr
                 dd      filesize                                ; p_filesz
                 dd      filesize                                ; p_memsz
                 dd      7                                       ; p_flags
                 dd      0x1000                                  ; p_align
-_start:         mov     al, 5                   ; 5 = open syscall
+
+program:        mov     eax, 4                   ; __NR_write from asm/unistd_32.h (32-bit int 0x80 ABI)
+                mov     ebx, 1                   ; stdout fileno
+                push    'A'
+                mov     ecx, esp                 ; esp now points to your char
+                mov     edx, 1                   ; edx should contain how many characters to print
+                int     0x80                     ; sys_write(1, "A", 1)
+                add     esp, 4
+                ret
+
+replicate:      mov     eax, 5                   ; 5 = open syscall
                 mov     ebx, fname
                 inc     byte [ebx]
-                mov     cl, 65                  ; 65 = O_WRONLY | O_CREAT
-                mov     dx, 777q
+                mov     ecx, 65                  ; 65 = O_WRONLY | O_CREAT
+                mov     edx, 777q
                 int     0x80
                 lea     edx, [byte ecx + filesize - 65]
                 xchg    eax, ebx
@@ -33,7 +45,14 @@ _start:         mov     al, 5                   ; 5 = open syscall
                 mov     cl, 0
                 mov     al, 4                   ; 4 = write syscall
                 int     0x80
-                mov     bl, 0
+                ret
+
+exit:           mov     bl, 0
                 mov     al, 1                   ; 1 = exit syscall
                 int     0x80
+
+_start:         call    program
+                call    replicate
+                call    exit
+
 filesize        equ     $ - $$

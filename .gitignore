@@ -2,3 +2,7 @@
 boot.bin
 asr
 bsr
+csr
+dsr
+esr
+fsr

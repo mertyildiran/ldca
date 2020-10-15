@@ -6,4 +6,13 @@ replicate:
 	nasm -f bin -o asr asr.asm
 	chmod +x asr
 	xxd asr > asr.xxd
+
+run:
 	./asr
+	./bsr
+	./csr
+	./dsr
+	./esr
+
+clean:
+	rm asr bsr csr dsr esr fsr
