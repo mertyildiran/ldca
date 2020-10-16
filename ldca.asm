@@ -32,7 +32,7 @@ phdr:                                           ; Elf32_Phdr
 
 phdrsize        equ     $ - phdr
 
-fname:  times 8 db      '0'
+fname: times 49 db      '0'                     ; Apparently 49 is the filename length limit
                 dw      0
 
 program:        mov     eax, 4                   ; __NR_write from asm/unistd_32.h (32-bit int 0x80 ABI)
@@ -49,12 +49,13 @@ do_inc_fname:   inc     byte [ebx]
 
 loop_inc_fname: cmp     byte [ebx], 57
                 jne     do_inc_fname
+                mov     byte [ebx], '0'
                 dec     ebx
-                je      loop_inc_fname
+                call    loop_inc_fname
                 ret
 
 inc_fname:      mov     ebx, fname
-                add     ebx, 7
+                add     ebx, 48
                 call    loop_inc_fname
                 mov     ebx, fname
                 ret
