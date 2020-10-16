@@ -44,9 +44,23 @@ program:        mov     eax, 4                   ; __NR_write from asm/unistd_32
                 add     esp, 4
                 ret
 
-replicate:      mov     eax, 5                   ; 5 = open syscall
+do_inc_fname:   inc     byte [ebx]
+                ret
+
+loop_inc_fname: cmp     byte [ebx], 57
+                jne     do_inc_fname
+                dec     ebx
+                je      loop_inc_fname
+                ret
+
+inc_fname:      mov     ebx, fname
+                add     ebx, 7
+                call    loop_inc_fname
                 mov     ebx, fname
-                inc     byte [ebx]
+                ret
+
+replicate:      mov     eax, 5                   ; 5 = open syscall
+                call    inc_fname
                 mov     ecx, 65                  ; 65 = O_WRONLY | O_CREAT
                 mov     edx, 777q
                 int     0x80
