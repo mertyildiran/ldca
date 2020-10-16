@@ -9,10 +9,10 @@ replicate:
 
 run:
 	./asr
-	./bsr
-	./csr
-	./dsr
-	./esr
+	./100
+	./200
+	./300
+	./400
 
 clean:
-	rm asr bsr csr dsr esr fsr
+	rm asr 100 200 300 400
