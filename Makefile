@@ -3,16 +3,16 @@ default:
 	qemu-system-x86_64 boot.bin
 
 replicate:
-	nasm -f bin -o asr asr.asm
-	chmod +x asr
-	xxd asr > asr.xxd
+	nasm -f bin -o 00000000 ldca.asm
+	chmod +x 00000000
+	xxd 00000000 > 00000000.xxd
 
 run:
-	./asr
-	./100
-	./200
-	./300
-	./400
+	./00000000
+	./10000000
+	./20000000
+	./30000000
+	./40000000
 
 clean:
-	rm asr 100 200 300 400
+	rm 00000000 10000000 20000000 30000000 40000000
