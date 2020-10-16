@@ -1,8 +1,4 @@
 default:
-	nasm -f bin boot.asm -o boot.bin
-	qemu-system-x86_64 boot.bin
-
-replicate:
 	nasm -f bin -o 00000000 ldca.asm
 	chmod +x 00000000
 	xxd 00000000 > 00000000.xxd
