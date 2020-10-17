@@ -1,7 +1,11 @@
 #!/bin/bash
 
-cd outs/
+for file in $(find outs/* -not -name "*.xxd");
+do
+    xxd "$file" > "${file}.xxd"
+done
 
-for i in {0000000000000000000000000000000000000000000000000..0000000000000000000000000000000000000000000005050}; do
-    ./$i
+for file in outs/*.xxd
+do
+    git diff --no-index --color 0000000000000000000000000000000000000000000000000.xxd "$file" | cat
 done
