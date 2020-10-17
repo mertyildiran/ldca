@@ -35,47 +35,47 @@ phdrsize        equ     $ - phdr
 fname: times 49 db      '0'                     ; Apparently 49 is the filename length limit
                 dw      0
 
-program:        mov     eax, 4                   ; __NR_write from asm/unistd_32.h (32-bit int 0x80 ABI)
-                mov     ebx, 1                   ; stdout fileno
+program:        mov     eax, 4                  ; 5 = sys_write
+                mov     ebx, 1                  ; 1 = stdout
                 push    'A'
-                mov     ecx, esp                 ; esp now points to your char
-                mov     edx, 1                   ; edx should contain how many characters to print
-                int     0x80                     ; sys_write(1, "A", 1)
+                mov     ecx, esp                ; esp now points to your char
+                mov     edx, 1                  ; edx should contain how many characters to print
+                int     0x80                    ; sys_write(1, 'A', 1)
                 add     esp, 4
                 ret
 
-do_inc_fname:   inc     byte [ebx]
+do_inc_fname:   inc     byte [ebx]              ; Increment the filename
                 ret
 
-loop_inc_fname: cmp     byte [ebx], 57
-                jne     do_inc_fname
-                mov     byte [ebx], '0'
-                dec     ebx
-                call    loop_inc_fname
+loop_inc_fname: cmp     byte [ebx], 57          ; Compare char to 9
+                jne     do_inc_fname            ; If it's not 9, jump
+                mov     byte [ebx], '0'         ; If it's 9, replace it with 0
+                dec     ebx                     ; Increase the digit
+                call    loop_inc_fname          ; Repeat
                 ret
 
-inc_fname:      mov     ebx, fname
-                add     ebx, 48
-                call    loop_inc_fname
-                mov     ebx, fname
+inc_fname:      mov     ebx, fname              ; Move the pointer to filename into ebx
+                add     ebx, 48                 ; Move cursor into the last character of the filename
+                call    loop_inc_fname          ; Increment the filename
+                mov     ebx, fname              ; Fix ebx into beginning of filename
                 ret
 
-replicate:      mov     eax, 5                   ; 5 = open syscall
-                call    inc_fname
-                mov     ecx, 65                  ; 65 = O_WRONLY | O_CREAT
-                mov     edx, 777q
-                int     0x80
-                lea     edx, [filesize]
-                xchg    eax, ebx
-                xchg    eax, ecx
-                mov     cl, 0
+replicate:      mov     eax, 5                  ; 5 = sys_open
+                call    inc_fname               ; Increment the filename
+                mov     ecx, 65                 ; 65 = O_WRONLY | O_CREAT
+                mov     edx, 777q               ; File mode (octal)
+                int     0x80                    ; sys_open(fname, 65, 777)
+                lea     edx, [filesize]         ; Load effective address of filesize
+                xchg    eax, ebx                ; Move the file descriptor in eax to ebx
+                xchg    eax, ecx                ; Swap eax and ecx
+                mov     cl, 0                   ; Point out to the beginning of the program by removing first 8 bits
                 mov     al, 4                   ; 4 = write syscall
-                int     0x80
+                int     0x80                    ; sys_write(file_descriptor, *content, filesize)
                 ret
 
-exit:           mov     bl, 0
-                mov     al, 1                   ; 1 = exit syscall
-                int     0x80
+exit:           mov     bl, 0                   ; 0 = Exit code
+                mov     al, 1                   ; 1 = sys_exit
+                int     0x80                    ; sys_exit(0)
 
 _start:         call    program
                 call    replicate
