@@ -1,4 +1,4 @@
-%macro randomNumber 2
+%macro rndNum 2
                 rdtsc                        ; Generate random bytes using CPU's clock (Read Time-Stamp Counter)
                 xor     edx, edx             ; there's no division of eax
                 mov     ecx, %2 - %1 + 1     ; possible values
