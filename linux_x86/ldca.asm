@@ -55,14 +55,14 @@ do_inc_fname:   inc     byte [ebx]              ; Increment the filename
                 ret
 
 loop_inc_fname: cmp     byte [ebx], 57          ; Compare char to 9
-                jne     do_inc_fname            ; If it's not 9, jump
-                mov     byte [ebx], '0'         ; If it's 9, replace it with 0
-                dec     ebx                     ; Increase the digit
-                call    loop_inc_fname          ; Repeat
+                jne     do_inc_fname            ; if it's not 9, jump
+                mov     byte [ebx], '0'         ; if it's 9, replace it with 0
+                dec     ebx                     ; increase the digit
+                call    loop_inc_fname          ; repeat
                 ret
 
 inc_fname:      mov     ebx, fname              ; Move the pointer to filename into ebx
-                add     ebx, 48                 ; Move cursor into the last character of the filename
+                add     ebx, 48                 ; move cursor into the last character of the filename
                 call    loop_inc_fname          ; Increment the filename
                 mov     ebx, fname              ; Fix ebx into beginning of filename
                 ret
@@ -98,7 +98,7 @@ left_shift:     mov     ebx, eax                ; Copy delete offset to ebx
                 ret
 
 shrink_loop:    randomNumber 1, esi             ; Delete offset, between 1 and "current programsize"
-                add     eax, programstart       ; Add programstart offset to delete offset to find the true location
+                add     eax, programstart       ; add programstart offset to delete offset to find the true location
                 call    left_shift              ; left shift the whole program starting from the delete offset
                 dec     esi                     ; decrement the programsize
                 dec     edi                     ; decrement the filesize
@@ -144,6 +144,7 @@ grow:           randomNumber 1, 256             ; Grow size, between 1 byte and 
                 add     esi, eax                ; increase the programsize by grow size
                 add     edi, eax                ; increase the filesize by grow size
                 call    fill_gap                ; fill the gap created by the right shift
+                ret
 
 mutate:         randomNumber    0, 99           ; Generate random number between 0 and 99
                 cmp     eax, 80                 ; compare eax (random number) with 80
@@ -162,20 +163,20 @@ replicate:      mov     esi, programsize        ; move programsize into esi (onl
                 mov     edi, filesize           ; Move filesize into edi (only increment or decrement this)
                 call    evolve                  ; evolve
                 mov     eax, 5                  ; 5 = sys_open
-                call    inc_fname               ; Increment the filename
+                call    inc_fname               ; increment the filename
                 mov     ecx, 65                 ; 65 = O_WRONLY | O_CREAT
-                mov     edx, 777q               ; File mode (octal)
+                mov     edx, 777q               ; file mode (octal)
                 int     0x80                    ; sys_open(fname, 65, 777)
-                lea     edx, [edi]              ; Load effective address of filesize
-                xchg    eax, ebx                ; Move the file descriptor in eax to ebx
-                xchg    eax, ecx                ; Swap eax and ecx
-                mov     cl, 0                   ; Point out to the beginning of the program by removing first 8 bits
+                lea     edx, [edi]              ; load effective address of filesize
+                xchg    eax, ebx                ; move the file descriptor in eax to ebx
+                xchg    eax, ecx                ; swap eax and ecx
+                mov     cl, 0                   ; point out to the beginning of the program by removing first 8 bits
                 mov     al, 4                   ; 4 = sys_write
                 int     0x80                    ; sys_write(file_descriptor, *content, filesize)
                 mov     eax, 6                  ; 6 = sys_close
                 int     0x80                    ; sys_close(file_descriptor)
-                ; call    fork
-                call    run
+                call    fork                    ; run the offspring by forking
+                ; call    run                   ; run the offspring without forking
                 ret
 
 exit:           mov     bl, 0                   ; 0 = Exit code
