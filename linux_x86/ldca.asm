@@ -1,3 +1,14 @@
+; Last Digital Common Ancestor (LDCA)
+;
+; Self-replicating, self-modifying Assembly program that can evolve into
+; every possible computer program in the universe.
+;
+; Author: M. Mert Yildiran <me@mertyildiran.com>
+; Licensed under the GNU General Public License v2.0
+;
+; Target architecture: Linux x86
+; Compile with: nasm -f bin -o 0000000000000000000000000000000000000000000000000 ldca.asm
+
 %include "macros.asm"
 
 BITS 32
@@ -175,7 +186,7 @@ replicate:      mov     esi, programsize        ; move programsize into esi (onl
                 int     0x80                    ; sys_write(file_descriptor, *content, filesize)
                 mov     eax, 6                  ; 6 = sys_close
                 int     0x80                    ; sys_close(file_descriptor)
-                call    fork                    ; run the offspring by forking
+                call    fork                    ; run the offspring with forking
                 ; call    run                   ; run the offspring without forking
                 ret
 
