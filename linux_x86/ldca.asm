@@ -68,6 +68,8 @@ noopend         equ     $
 
 programsize     equ     programend - programstart
 
+endoffset       dd      0
+
 do_inc_fname:   inc     byte [ebx]              ; Increment the filename
                 ret
 
