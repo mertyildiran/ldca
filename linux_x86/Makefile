@@ -8,13 +8,13 @@ dev: clean
 	chmod +x outs/0000000000000000000000000000000000000000000000000
 
 run:
-	cd outs && ./0000000000000000000000000000000000000000000000000
+	./run.sh
 
 strace:
-	cd outs && strace ./0000000000000000000000000000000000000000000000000
+	./strace.sh
 
 diff:
-	./run.sh
+	./diff.sh
 
 clean:
 	cd outs && rm * || true
