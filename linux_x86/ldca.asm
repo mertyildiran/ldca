@@ -166,13 +166,14 @@ exit:           mov     bl, 0                   ; 0 = Exit code
                 int     0x80                    ; sys_exit(0)
                 ret
 
-with_replicate: ; call    program
+with_replicate: call    program
+                call    replicate               ; replicate subroutine must not fail!
                 call    replicate               ; replicate subroutine must not fail!
                 ret
 
 replicate_if:   cmp     byte [eax], 49          ; compare the first command-line argument to '1'
                 jz      with_replicate          ; replicate if the argument is '1'
-                ; call    program
+                call    program
                 ret
 
 args:           pop     eax                     ; this subroutines runs only if an argument is supplied
