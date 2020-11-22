@@ -2,11 +2,16 @@
 
 Self-replicating, self-modifying Assembly program that can evolve into every possible computer program in the universe.
 
+<p align="center">
+  <img src="https://i.ibb.co/VpYDzYK/demo.gif" alt="LDCA" height="800px"/>
+</p>
+
 [NASM](https://www.nasm.us/) is required to compile the Assembly program.
 
 ## Compiling & Running
 
 > **CAUTION:** Since this program executes random CPU instructions, it might run potentialy harmful machine code of any kind.
+
 > **NOTICE:** Program execution is disabled temporarily. To re-enable it, remove `;` before the `call    program` occurences in `ldca.asm` file.
 
 Go into the directory that matches your operating system and CPU architecture combination. For example: `cd linux_x86`
@@ -113,4 +118,4 @@ There are some constants that hard-coded into the Assembly program which are ope
 
 ## License
 
-**Last Digital Common Ancestor** is licensed under the [**GNU General Public License v2.0**](/LICENSE).
+**Last Digital Common Ancestor** is licensed under the [**GNU General Public License v3.0**](/LICENSE).
