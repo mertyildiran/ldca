@@ -7,8 +7,7 @@ Self-replicating, self-modifying Assembly program that can evolve into every pos
 ## Compiling & Running
 
 > **CAUTION:** Since this program executes random CPU instructions, it might run potentialy harmful machine code of any kind.
-> The program runs its offsprings in multiple subprocesses and creates an ever growing tree of processes. Because of this,
-> it eventually freezes any machine that runs it. The reason for that is; it consumes all of the CPU resources and free memory.
+> **NOTICE:** Program execution is disabled temporarily. To re-enable it, remove `;` before the `call    program` occurences in `ldca.asm` file.
 
 Go into the directory that matches your operating system and CPU architecture combination. For example: `cd linux_x86`
 
@@ -21,14 +20,35 @@ Go into the `outs/` directory and run it:
 ```bash
 cd outs/
 ./0000000000000000000000000000000000000000000000000
+cd ..
 ```
 
-After letting the descendants of this program live for a while you should be able to kill those processes
-by sending `SIGINT` signal (by pressing <kbd>CTRL + C</kbd>) It might even require you to physically
-restart your machine since your machine must be frozen at this point.
+Now you should be seeing these three binaries:
 
-Go back into the parent directory of `outs/` and run `make diff` This command will show you the hex dump difference
-between all the descendants and the initial program `0000000000000000000000000000000000000000000000000`
+```bash
+$ ls outs/
+0000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000000001
+0000000000000000000000000000000000000000000000002
+```
+
+that means it's replicated and created 2 offsprings.
+
+Now you can run these commands sequentially to achieve the results shown in the animation at the top:
+
+```bash
+clear
+make clean
+make
+make strace
+make diff
+```
+
+or simply run:
+
+```bash
+./dev.sh
+```
 
 ## Development
 
