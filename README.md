@@ -10,9 +10,9 @@ Self-replicating, self-modifying Assembly program that can evolve into every pos
 
 ## Compiling & Running
 
-> **CAUTION:** Since this program executes random CPU instructions, it might run potentialy harmful machine code of any kind.
+> **CAUTION:** Since this program executes random CPU instructions, it might run potentialy harmful machine code of any kind. For example: You can accidentally delete a file from your disk or change some configuration in your system. Although it's statistically insignificant, you should still run it in an isolated environment. Also read the NOTICE below.
 
-> **NOTICE:** Program execution is disabled temporarily. To re-enable it, remove `;` before the `call    program` occurences in `ldca.asm` file.
+> **NOTICE:** Program execution (that executes random CPU instructions) is disabled temporarily. To re-enable it, remove `;` before the `call    program` occurences in `ldca.asm` file.
 
 Go into the directory that matches your operating system and CPU architecture combination. For example: `cd linux_x86`
 
